@@ -1,0 +1,8 @@
+Project Diary – Introduction
+
+This project diary records the work carried out for the project titled “ServiceMate – A Local Service Booking Platform.”
+The purpose of this diary is to document the project progress, tasks completed, challenges faced, and solutions implemented during development.
+
+The project is developed as part of the academic curriculum to gain practical knowledge in full-stack web development using the MERN stack. It focuses on building a platform that connects users with local service providers in an efficient and user-friendly manner.
+
+This diary will serve as a reference for the development process, team coordination, and learning outcomes achieved throughout the project lifecycle.
