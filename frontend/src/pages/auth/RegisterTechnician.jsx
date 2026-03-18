@@ -19,11 +19,10 @@ export default function RegisterTechnician() {
     experienceYears: "",
     address: "",
     bio: "",
-    latitude: "",
-    longitude: "",
+    state: "",
+    city: "",
   });
   const [loading, setLoading] = useState(false);
-  const [detectingLocation, setDetectingLocation] = useState(false);
 
   useEffect(() => {
     API.get("/service-categories").then((res) => setCategories(res.data.data)).catch(() => {});
@@ -31,33 +30,10 @@ export default function RegisterTechnician() {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const detectLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation not supported");
-      return;
-    }
-    setDetectingLocation(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setForm((f) => ({
-          ...f,
-          latitude: pos.coords.latitude.toString(),
-          longitude: pos.coords.longitude.toString(),
-        }));
-        toast.success("Location detected!");
-        setDetectingLocation(false);
-      },
-      () => {
-        toast.error("Could not detect location");
-        setDetectingLocation(false);
-      }
-    );
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.latitude || !form.longitude) {
-      toast.error("Please detect or enter your location");
+    if (!form.state || !form.city) {
+      toast.error("Please enter your state and city");
       return;
     }
     setLoading(true);
@@ -65,8 +41,6 @@ export default function RegisterTechnician() {
       await API.post("/auth/register-technician", {
         ...form,
         experienceYears: Number(form.experienceYears),
-        latitude: Number(form.latitude),
-        longitude: Number(form.longitude),
       });
       toast.success("OTP sent to your email!");
       navigate(`/verify-otp?email=${form.email}`);
@@ -111,7 +85,12 @@ export default function RegisterTechnician() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <Input label="Experience (years)" name="experienceYears" type="number" min="0" placeholder="3" value={form.experienceYears} onChange={handleChange} required />
-              <Input label="Address" name="address" placeholder="Chennai, Tamil Nadu" value={form.address} onChange={handleChange} />
+              <Input label="Address" name="address" placeholder="Anna Nagar, Chennai" value={form.address} onChange={handleChange} />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input label="State" name="state" placeholder="Tamil Nadu" value={form.state} onChange={handleChange} required />
+              <Input label="City" name="city" placeholder="Chennai" value={form.city} onChange={handleChange} required />
             </div>
 
             <div>
@@ -124,17 +103,6 @@ export default function RegisterTechnician() {
                 className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="Brief about your skills..."
               />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Location</label>
-              <div className="flex gap-2">
-                <Input placeholder="Latitude" name="latitude" value={form.latitude} onChange={handleChange} />
-                <Input placeholder="Longitude" name="longitude" value={form.longitude} onChange={handleChange} />
-                <Button type="button" variant="outline" onClick={detectLocation} loading={detectingLocation}>
-                  Detect
-                </Button>
-              </div>
             </div>
 
             <Button type="submit" className="w-full" loading={loading}>

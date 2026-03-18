@@ -58,7 +58,7 @@ export default function Home() {
         <h2 className="text-center text-2xl font-bold">Why ServiceMate?</h2>
         <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: MapPin, title: "Nearby Pros", desc: "Discover technicians within your area using GPS" },
+            { icon: MapPin, title: "Local Pros", desc: "Discover technicians in your city and state" },
             { icon: Shield, title: "Verified", desc: "Every technician is reviewed and approved" },
             { icon: Star, title: "Rated & Reviewed", desc: "Real ratings from real customers" },
             { icon: Clock, title: "Quick Booking", desc: "Book a service in under 2 minutes" },

@@ -27,16 +27,15 @@ const technicianProfileSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    location: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        required: true,
-      },
-      coordinates: {
-        type: [Number], // [longitude, latitude]
-        required: true,
-      },
+    state: {
+      type: String,
+      required: [true, "State is required"],
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: [true, "City is required"],
+      trim: true,
     },
     approvalStatus: {
       type: String,
@@ -65,8 +64,7 @@ const technicianProfileSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// 2dsphere index for geospatial queries
-technicianProfileSchema.index({ location: "2dsphere" });
+technicianProfileSchema.index({ state: 1, city: 1 });
 technicianProfileSchema.index({ serviceCategoryId: 1 });
 technicianProfileSchema.index({ approvalStatus: 1 });
 technicianProfileSchema.index({ isAvailable: 1 });

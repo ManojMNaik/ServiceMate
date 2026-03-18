@@ -70,7 +70,7 @@ Stores OTPs for signup and resend flow.
 
 ## 3.3 TechnicianProfile
 
-Stores technician-specific data and geolocation.
+Stores technician-specific data and location (state/city).
 
 ### Fields
 
@@ -81,7 +81,8 @@ Stores technician-specific data and geolocation.
 | `experienceYears` | Number | Yes | Integer or decimal |
 | `bio` | String | No | About technician |
 | `address` | String | No | Human-readable location |
-| `location` | GeoJSON Point | Yes | `{ type: "Point", coordinates: [lng, lat] }` |
+| `state` | String | Yes | Indian state name |
+| `city` | String | Yes | City name |
 | `approvalStatus` | String | Yes | `pending`, `approved`, `rejected` |
 | `isAvailable` | Boolean | Yes | Used for search filters |
 | `averageRating` | Number | Yes | Default `0` |
@@ -92,7 +93,7 @@ Stores technician-specific data and geolocation.
 
 ### Indexes
 
-- `2dsphere` index on `location`
+- compound index on `{ state: 1, city: 1 }`
 - index on `serviceCategoryId`
 - index on `approvalStatus`
 - index on `isAvailable`
@@ -143,7 +144,8 @@ Represents a user request to a technician.
 | `serviceCategoryId` | ObjectId | Yes | Ref `ServiceCategory` |
 | `bookingDate` | Date | Yes | Scheduled start time |
 | `address` | String | Yes | Service location |
-| `location` | GeoJSON Point | No | Optional service coordinates |
+| `state` | String | No | Service state |
+| `city` | String | No | Service city |
 | `issueDescription` | String | Yes | User problem summary |
 | `status` | String | Yes | `pending`, `accepted`, `rejected`, `completed`, `cancelled` |
 | `statusHistory` | Array | Yes | Status change log |
@@ -210,17 +212,8 @@ User review linked to a completed booking.
   experienceYears: { type: Number, required: true, min: 0 },
   bio: { type: String, trim: true },
   address: { type: String, trim: true },
-  location: {
-    type: {
-      type: String,
-      enum: ["Point"],
-      required: true
-    },
-    coordinates: {
-      type: [Number],
-      required: true
-    }
-  },
+  state: { type: String, required: true, trim: true },
+  city: { type: String, required: true, trim: true },
   approvalStatus: {
     type: String,
     enum: ["pending", "approved", "rejected"],
@@ -243,13 +236,8 @@ User review linked to a completed booking.
   serviceCategoryId: { type: Schema.Types.ObjectId, ref: "ServiceCategory", required: true },
   bookingDate: { type: Date, required: true },
   address: { type: String, required: true, trim: true },
-  location: {
-    type: {
-      type: String,
-      enum: ["Point"]
-    },
-    coordinates: [Number]
-  },
+  state: { type: String, trim: true },
+  city: { type: String, trim: true },
   issueDescription: { type: String, required: true, trim: true },
   status: {
     type: String,
@@ -346,8 +334,8 @@ Registers a technician account and creates a pending technician profile.
   "serviceCategoryId": "category_id",
   "experienceYears": 5,
   "address": "Chennai",
-  "latitude": 13.0827,
-  "longitude": 80.2707
+  "state": "Tamil Nadu",
+  "city": "Chennai"
 }
 ```
 
@@ -424,16 +412,15 @@ Search technicians by location and optional filters.
 
 #### Query Params
 
-- `lat`
-- `lng`
-- `radiusKm`
+- `state` (required)
+- `city` (optional)
 - `serviceCategoryId`
 - `isAvailable`
 - `sortBy=distance|rating`
 
 #### Example
 
-`GET /api/v1/technicians/nearby?lat=13.0827&lng=80.2707&radiusKm=5&serviceCategoryId=123`
+`GET /api/v1/technicians/nearby?state=Tamil%20Nadu&city=Chennai&serviceCategoryId=123`
 
 ### `GET /api/v1/technicians`
 
@@ -500,8 +487,8 @@ User creates booking.
   "serviceCategoryId": "category_id",
   "bookingDate": "2026-03-20T10:00:00.000Z",
   "address": "Flat 10, Anna Nagar, Chennai",
-  "latitude": 13.084,
-  "longitude": 80.278,
+  "state": "Tamil Nadu",
+  "city": "Chennai",
   "issueDescription": "Switch board sparking in kitchen"
 }
 ```
@@ -643,8 +630,8 @@ View all reviews for moderation.
 - `rating`: integer from 1 to 5
 - `experienceYears`: minimum 0
 - `bookingDate`: must be in the future at creation time
-- `latitude`: range `-90` to `90`
-- `longitude`: range `-180` to `180`
+- `state`: non-empty string
+- `city`: non-empty string
 
 ## 9. Booking State Rules
 

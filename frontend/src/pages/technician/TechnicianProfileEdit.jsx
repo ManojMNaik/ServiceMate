@@ -15,8 +15,8 @@ export default function TechnicianProfileEdit() {
     experienceYears: "",
     bio: "",
     address: "",
-    latitude: "",
-    longitude: "",
+    state: "",
+    city: "",
     serviceCategoryId: "",
     isAvailable: true,
   });
@@ -35,8 +35,8 @@ export default function TechnicianProfileEdit() {
         experienceYears: technicianProfile.experienceYears?.toString() || "",
         bio: technicianProfile.bio || "",
         address: technicianProfile.address || "",
-        latitude: technicianProfile.location?.coordinates?.[1]?.toString() || "",
-        longitude: technicianProfile.location?.coordinates?.[0]?.toString() || "",
+        state: technicianProfile.state || "",
+        city: technicianProfile.city || "",
         serviceCategoryId: technicianProfile.serviceCategoryId?._id || technicianProfile.serviceCategoryId || "",
         isAvailable: technicianProfile.isAvailable ?? true,
       });
@@ -56,8 +56,8 @@ export default function TechnicianProfileEdit() {
         experienceYears: Number(form.experienceYears),
         bio: form.bio,
         address: form.address,
-        latitude: Number(form.latitude),
-        longitude: Number(form.longitude),
+        state: form.state,
+        city: form.city,
         serviceCategoryId: form.serviceCategoryId,
       });
       toast.success("Profile updated!");
@@ -123,13 +123,13 @@ export default function TechnicianProfileEdit() {
           </div>
           <Input label="Experience (years)" name="experienceYears" type="number" min="0" value={form.experienceYears} onChange={handleChange} />
           <Input label="Address" name="address" value={form.address} onChange={handleChange} />
+          <div className="grid grid-cols-2 gap-4">
+            <Input label="State" name="state" placeholder="Karnataka" value={form.state} onChange={handleChange} />
+            <Input label="City" name="city" placeholder="Bangalore" value={form.city} onChange={handleChange} />
+          </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Bio</label>
             <textarea name="bio" value={form.bio} onChange={handleChange} rows={3} className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="Latitude" name="latitude" value={form.latitude} onChange={handleChange} />
-            <Input label="Longitude" name="longitude" value={form.longitude} onChange={handleChange} />
           </div>
           <Button type="submit" loading={saving}>Save Changes</Button>
         </form>

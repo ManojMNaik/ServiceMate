@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { MapPin, Star, Search, Navigation } from "lucide-react";
+import { MapPin, Star, Search } from "lucide-react";
 import toast from "react-hot-toast";
 import API from "../api/axios";
 import Navbar from "../components/Navbar";
@@ -16,46 +16,26 @@ export default function SearchTechnicians() {
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
-    lat: "",
-    lng: "",
-    radiusKm: "10",
+    state: "",
+    city: "",
     serviceCategoryId: searchParams.get("category") || "",
-    sortBy: "distance",
+    sortBy: "rating",
   });
 
   useEffect(() => {
     API.get("/service-categories").then((r) => setCategories(r.data.data)).catch(() => {});
   }, []);
 
-  const detectLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation not supported");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setFilters((f) => ({
-          ...f,
-          lat: pos.coords.latitude.toString(),
-          lng: pos.coords.longitude.toString(),
-        }));
-        toast.success("Location detected!");
-      },
-      () => toast.error("Could not detect location")
-    );
-  };
-
   const handleSearch = async () => {
-    if (!filters.lat || !filters.lng) {
-      toast.error("Please detect or enter your location first");
+    if (!filters.state) {
+      toast.error("Please enter a state to search");
       return;
     }
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      params.set("lat", filters.lat);
-      params.set("lng", filters.lng);
-      params.set("radiusKm", filters.radiusKm);
+      params.set("state", filters.state);
+      if (filters.city) params.set("city", filters.city);
       if (filters.serviceCategoryId) params.set("serviceCategoryId", filters.serviceCategoryId);
       params.set("sortBy", filters.sortBy);
 
@@ -73,21 +53,23 @@ export default function SearchTechnicians() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       <div className="container-app py-8">
-        <h1 className="text-2xl font-bold">Find Technicians Near You</h1>
+        <h1 className="text-2xl font-bold">Find Technicians in Your Area</h1>
 
         {/* Filters */}
         <Card className="mt-6">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <div className="sm:col-span-2 lg:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-gray-700">Location</label>
-              <div className="flex gap-2">
-                <Input placeholder="Latitude" value={filters.lat} onChange={(e) => setFilters({ ...filters, lat: e.target.value })} />
-                <Input placeholder="Longitude" value={filters.lng} onChange={(e) => setFilters({ ...filters, lng: e.target.value })} />
-                <Button type="button" variant="outline" onClick={detectLocation} title="Detect my location">
-                  <Navigation className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+            <Input
+              label="State"
+              placeholder="e.g. Karnataka"
+              value={filters.state}
+              onChange={(e) => setFilters({ ...filters, state: e.target.value })}
+            />
+            <Input
+              label="City"
+              placeholder="e.g. Bangalore"
+              value={filters.city}
+              onChange={(e) => setFilters({ ...filters, city: e.target.value })}
+            />
 
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">Category</label>
@@ -104,15 +86,15 @@ export default function SearchTechnicians() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Radius (km)</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Sort By</label>
               <select
-                value={filters.radiusKm}
-                onChange={(e) => setFilters({ ...filters, radiusKm: e.target.value })}
+                value={filters.sortBy}
+                onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
                 className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
               >
-                {[5, 10, 20, 50].map((r) => (
-                  <option key={r} value={r}>{r} km</option>
-                ))}
+                <option value="rating">Rating</option>
+                <option value="experience">Experience</option>
+                <option value="jobs">Completed Jobs</option>
               </select>
             </div>
 
@@ -134,11 +116,11 @@ export default function SearchTechnicians() {
                 <Card className="transition hover:shadow-md">
                   <div className="flex items-start gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-600">
-                      {t.user?.name?.charAt(0)}
+                      {t.userId?.name?.charAt(0)}
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold">{t.user?.name}</h3>
-                      <p className="text-sm text-gray-500">{t.serviceCategory?.name}</p>
+                      <h3 className="font-semibold">{t.userId?.name}</h3>
+                      <p className="text-sm text-gray-500">{t.serviceCategoryId?.name}</p>
                     </div>
                     {t.isAvailable && <Badge status="approved">Available</Badge>}
                   </div>
@@ -150,7 +132,7 @@ export default function SearchTechnicians() {
                     </span>
                     <span className="flex items-center gap-1">
                       <MapPin className="h-4 w-4" />
-                      {(t.distance / 1000).toFixed(1)} km
+                      {t.city}, {t.state}
                     </span>
                     <span>{t.experienceYears} yrs exp</span>
                   </div>

@@ -60,7 +60,7 @@ exports.register = asyncHandler(async (req, res) => {
 
 // ── Register Technician ────────────────────────────────────────────
 exports.registerTechnician = asyncHandler(async (req, res) => {
-  const { name, email, password, phone, serviceCategoryId, experienceYears, address, latitude, longitude, bio } =
+  const { name, email, password, phone, serviceCategoryId, experienceYears, address, state, city, bio } =
     req.body;
 
   const existingUser = await User.findOne({ email });
@@ -76,10 +76,8 @@ exports.registerTechnician = asyncHandler(async (req, res) => {
     experienceYears,
     bio,
     address,
-    location: {
-      type: "Point",
-      coordinates: [parseFloat(longitude), parseFloat(latitude)],
-    },
+    state,
+    city,
   });
 
   await createAndSendOtp(email);

@@ -71,7 +71,9 @@ export default function TechnicianPublicProfile() {
                   </span>
                   <span className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
-                    {tech.address || "Location not specified"}
+                    {tech.city && tech.state
+                      ? `${tech.city}, ${tech.state}`
+                      : tech.address || "Location not specified"}
                   </span>
                 </div>
                 {tech.bio && <p className="mt-2 text-sm text-gray-600">{tech.bio}</p>}

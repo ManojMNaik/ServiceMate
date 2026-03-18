@@ -41,12 +41,13 @@ const bookingSchema = new mongoose.Schema(
       required: [true, "Service address is required"],
       trim: true,
     },
-    location: {
-      type: {
-        type: String,
-        enum: ["Point"],
-      },
-      coordinates: [Number],
+    state: {
+      type: String,
+      trim: true,
+    },
+    city: {
+      type: String,
+      trim: true,
     },
     issueDescription: {
       type: String,

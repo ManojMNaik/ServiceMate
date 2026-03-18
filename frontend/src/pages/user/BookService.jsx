@@ -14,33 +14,28 @@ export default function BookService() {
   const [form, setForm] = useState({
     bookingDate: "",
     address: "",
-    latitude: "",
-    longitude: "",
+    state: "",
+    city: "",
     issueDescription: "",
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     API.get(`/technicians/${technicianId}`)
-      .then((res) => setTech(res.data.data))
+      .then((res) => {
+        const data = res.data.data;
+        setTech(data);
+        // Pre-fill state/city from technician's location
+        setForm((f) => ({
+          ...f,
+          state: data.state || "",
+          city: data.city || "",
+        }));
+      })
       .catch(() => toast.error("Technician not found"));
   }, [technicianId]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const detectLocation = () => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setForm((f) => ({
-          ...f,
-          latitude: pos.coords.latitude.toString(),
-          longitude: pos.coords.longitude.toString(),
-        }));
-        toast.success("Location detected");
-      },
-      () => toast.error("Could not detect location")
-    );
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,8 +46,8 @@ export default function BookService() {
         serviceCategoryId: tech.serviceCategoryId._id,
         bookingDate: new Date(form.bookingDate).toISOString(),
         address: form.address,
-        latitude: form.latitude ? Number(form.latitude) : undefined,
-        longitude: form.longitude ? Number(form.longitude) : undefined,
+        state: form.state || undefined,
+        city: form.city || undefined,
         issueDescription: form.issueDescription,
       });
       toast.success("Booking created!");
@@ -93,13 +88,9 @@ export default function BookService() {
               onChange={handleChange}
               required
             />
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Location (optional)</label>
-              <div className="flex gap-2">
-                <Input placeholder="Lat" name="latitude" value={form.latitude} onChange={handleChange} />
-                <Input placeholder="Lng" name="longitude" value={form.longitude} onChange={handleChange} />
-                <Button type="button" variant="outline" onClick={detectLocation}>Detect</Button>
-              </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input label="State" name="state" placeholder="Tamil Nadu" value={form.state} onChange={handleChange} />
+              <Input label="City" name="city" placeholder="Chennai" value={form.city} onChange={handleChange} />
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">Describe the issue</label>

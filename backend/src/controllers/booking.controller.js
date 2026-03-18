@@ -10,7 +10,7 @@ const VALID_TRANSITIONS = {
 
 // ── Create booking (user) ──────────────────────────────────────────
 exports.createBooking = asyncHandler(async (req, res) => {
-  const { technicianProfileId, serviceCategoryId, bookingDate, address, latitude, longitude, issueDescription } =
+  const { technicianProfileId, serviceCategoryId, bookingDate, address, state, city, issueDescription } =
     req.body;
 
   const techProfile = await TechnicianProfile.findById(technicianProfileId);
@@ -29,6 +29,8 @@ exports.createBooking = asyncHandler(async (req, res) => {
     serviceCategoryId,
     bookingDate,
     address,
+    state,
+    city,
     issueDescription,
     status: "pending",
     statusHistory: [
@@ -40,13 +42,6 @@ exports.createBooking = asyncHandler(async (req, res) => {
       },
     ],
   };
-
-  if (latitude && longitude) {
-    bookingData.location = {
-      type: "Point",
-      coordinates: [parseFloat(longitude), parseFloat(latitude)],
-    };
-  }
 
   const booking = await Booking.create(bookingData);
 
